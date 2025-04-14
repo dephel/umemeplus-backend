@@ -31,6 +31,8 @@ Step 2 : Running the project:
     ⦁	npm run data:import for manually import all data into your database, this will run seed.js file and all sample data in utils file will
             imported to your database.
 
+<!-- hj -->
+
 Folder Structure & Customization:
 
 ⦁ In index.js file you will find all declared api endpoint for different route.
