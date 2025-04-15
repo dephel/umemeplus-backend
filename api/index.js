@@ -25,27 +25,70 @@ const { isAuth, isAdmin } = require('../config/auth');
 //   getStoreCustomizationSetting,
 // } = require("../lib/notification/setting");
 
+// connectDB();
+// const app = express();
+
+// // We are using this for the express-rate-limit middleware
+// // See: https://github.com/nfriedly/express-rate-limit
+// // app.enable('trust proxy');
+// app.set('trust proxy', 1);
+
+// app.use(express.json({ limit: '4mb' }));
+// app.use(helmet());
+// app.options('*', cors()); // include before other routes
+// // app.use(cors());
+// app.use(
+//   cors({
+//     origin: 'https://umemeplus-admin.netlify.app',
+//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//     allowedHeaders: ['Content-Type', 'Authorization'],
+//   })
+// );
+
+// //root route
+// app.get('/', (req, res) => {
+//   res.send('App works properly!');
+// });
+
 connectDB();
 const app = express();
 
-// We are using this for the express-rate-limit middleware
-// See: https://github.com/nfriedly/express-rate-limit
-// app.enable('trust proxy');
+// Trust proxy for rate limiting
 app.set('trust proxy', 1);
 
+// Middleware
 app.use(express.json({ limit: '4mb' }));
 app.use(helmet());
-app.options('*', cors()); // include before other routes
-// app.use(cors());
+
+// Enhanced CORS configuration
+const allowedOrigins = [
+  'https://umemeplus-admin.netlify.app', // Production
+  'http://localhost:4100', // Your local dev
+  'http://localhost:3000', // Common React dev port
+];
+
 app.use(
   cors({
-    origin: 'https://umemeplus-admin.netlify.app',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    // credentials: true, // Enable if using cookies/sessions
   })
 );
 
-//root route
+// Pre-flight requests
+app.options('*', cors());
+
+// Root route
 app.get('/', (req, res) => {
   res.send('App works properly!');
 });
